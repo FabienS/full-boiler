@@ -1,0 +1,222 @@
+@mixin hover() {
+    &:focus {
+        @content;
+    }
+
+    @include for("medium") {
+        &:hover {
+            @content;
+        }
+    }
+}
+
+@mixin for($breakpoint) {
+    @if map-has-key($breakpoints, $breakpoint) {
+        @media (min-width: map-get($breakpoints, $breakpoint)) {
+            @content;
+        }
+    }
+    @else {
+        @error 'Breakpoint not existing '+$breakpoint;
+    }
+}
+
+@mixin range($minBreakpoint, $maxBreakpoint) {
+    @if map-has-key($breakpoints, $minBreakpoint) and map-has-key($breakpoints, $maxBreakpoint){
+        @media screen and (min-width: map-get($breakpoints, $minBreakpoint)) and (max-width: map-get($breakpoints, $maxBreakpoint)) {
+            @content;
+        }
+    }
+    @else {
+        @error 'Breakpoint not existing '+$breakpoint;
+    }
+}
+
+@mixin button-colors($background: $color-red, $color: $color-dark, $secondary: false, $iconOnly: false, $hoverDark: false, $hoverRed: false, $containsIcon: false) {
+    background: $background;
+    color: $color;
+
+    @if $iconOnly {
+        svg {
+            fill: $color-dark;
+        }
+    } @else {
+        svg {
+            fill: $color;
+        }
+    }
+
+    &:not(:disabled) {
+        @include hover {
+            @if $secondary {
+                background: $color;
+                color: $background;
+            } @else {
+                background: $color-dark;
+                border-color: $color-dark;
+                color: $color;
+            }
+            @if $hoverDark {
+                background: $color-red;
+                color: $background;
+            }
+            @if $hoverRed {
+                background: $color-dark;
+                color: $background;
+            }
+        
+            @if $iconOnly or $containsIcon{
+                svg {
+                    fill: $color-light;
+                }
+            } @else {
+                svg {
+                    fill: $background;
+                }
+            }
+        }
+    }
+}
+
+@mixin button($background: $color-red, $color: $color-light, $secondary: false, $tertiary: false, $icon: false, $hoverDark: false, $hoverRed: false, $select: false, $containsIcon: false) {
+    display: inline-block;
+    border: 0;
+    border-radius: $border-radius;
+    box-shadow: none;
+    font-family: $font-base;
+    font-size: rem(14px);
+    font-weight: 400;
+    letter-spacing: rem(1.2px);
+    line-height: rem(36px);
+    text-transform: none;
+    padding: 0 rem(25px);
+    
+    @extend %exotic-font-family;
+
+    @if $hoverRed or $hoverDark {
+        background-color: $color-light;
+        color: $color-red;
+    }
+
+    @if $select {
+        padding-right: rem(45px);
+    }
+    @if $secondary {
+        $background: $color-light;
+        $color: $color-red;
+        border: rem(1px) solid $color-red;
+    }
+    @if $tertiary {
+        $color: $color-dark;
+        letter-spacing: rem(0.75px);
+
+        &:not(:disabled) {
+            @include hover {
+                border-color: $color-dark;
+            }
+        }
+    }
+    @if $icon {
+        color: $color-gray-600;
+    }
+
+    @if $tertiary or $icon {
+        border: rem(1px) solid $color-light-alt;
+        background-color: $color-light;
+    } @else {
+        @include button-colors($background, $color, $secondary, $hoverDark: $hoverDark, $hoverRed: $hoverRed, $containsIcon: $containsIcon);
+    }
+
+    @include for('medium') {
+        font-size: rem(16px);
+        line-height: rem(40px);
+        padding: 0 rem(30px);
+    }
+
+    &:disabled {
+        cursor: default;
+        background-color: $color-gray-100;
+        color: $color-light-alt;
+        border-color: $color-light-alt;
+
+        svg {
+            fill: $color-light-alt;
+        }
+    }
+}
+
+@mixin button-secondary() {
+    @include button($secondary: true);
+}
+
+@mixin button-tertiary($select: false) {
+    @include button($tertiary: true, $select: $select)
+}
+
+@mixin button-icon() {
+    @include button($icon: true);
+
+    svg {
+      fill: $color-red;
+      width: rem(14px);
+      height: rem(14px);
+      margin-right: rem(10px);
+  
+      @include for('medium') {
+        width: rem(15px);
+        height: rem(15px);
+      }
+    }
+    &:not(:disabled) {
+        @include hover {
+            color: $color-red;
+            border-color: $color-red;
+            background-color: $color-light;
+        }
+    }
+}
+
+@mixin button-icon-only($background: $color-gray-100, $color: $color-dark) {
+    @include button-colors($background, $color, $iconOnly: true);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    width: $button-icon-size-sm;
+    height: $button-icon-size-sm;
+    border: 0;
+    border-radius: 50%;
+    transition: width .6s ease, height .6s ease;
+
+    &:disabled {
+        svg {
+            fill: color-light-alt;
+        }
+    }
+
+    @include for('medium') {
+        width: $button-icon-size-lg;
+        height: $button-icon-size-lg;
+    }
+}
+
+@mixin button-sm($background: $color-light, $color: $color-red, $border: $color-gray-300) {
+    &:not([disabled]) {
+        @include button-colors($background, $color);
+    }
+    
+    display: inline-block;
+    border: rem(1px) solid $border;
+    border-radius: $border-radius;
+    box-shadow: none;
+    font-size: rem(11px);
+    font-weight: 400;
+    line-height: rem(32px);
+    text-transform: uppercase;
+    padding: 0 rem(30px);
+
+    &:disabled {
+        opacity: .5;
+    }
+}
